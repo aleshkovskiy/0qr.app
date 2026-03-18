@@ -40,6 +40,16 @@ Every QR code generator out there is either:
 
 Just serve `index.html` — that's the entire app. Works from any static host, CDN, or even directly from the filesystem (`file://`).
 
+**Deploy your own copy in 2 minutes:**
+
+```bash
+git clone https://github.com/aleshkovskiy/0qr.app
+cd 0qr.app
+npx wrangler deploy
+```
+
+Or use [Cloudflare Pages](https://pages.cloudflare.com), [Netlify](https://netlify.com), [Vercel](https://vercel.com), or GitHub Pages — no build step required, just point at `index.html`.
+
 ## License
 
 MIT — do whatever you want with it.
