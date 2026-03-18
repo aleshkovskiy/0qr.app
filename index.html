@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR.FAST — Instant QR Code Generator</title>
+<meta name="description" content="Free, instant QR codes. URL, WiFi, vCard, WhatsApp, Email, SMS — no ads, no sign-up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --border: #e8e6e1;
+  --border-focus: #b0aca4;
+  --text: #1a1916;
+  --muted: #8a8780;
+  --muted2: #b0aca4;
+  --accent-light: #f0ede8;
+  --green: #2d7a4f;
+  --red: #c0453a;
+  --radius: 8px;
+}
+
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; overflow-x: hidden; }
+
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+header {
+  padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size: 15px; font-weight: 500; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+.logo span { color: var(--muted2); font-weight: 300; }
+.tagline { font-size: 12px; color: var(--muted2); font-weight: 300; }
+
+main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+
+.panel-left { padding: 40px; display: flex; flex-direction: column; gap: 28px; border-right: 1px solid var(--border); }
+
+.type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.type-btn {
+  background: transparent; border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--muted); cursor: pointer; padding: 10px 6px 9px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: all 0.12s; font-family: 'Inter', sans-serif;
+}
+.type-btn:hover { border-color: var(--border-focus); color: var(--text); }
+.type-btn.active { border-color: var(--text); color: var(--text); background: var(--accent-light); }
+.type-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.type-btn-label { font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+
+.section-label { font-size: 11px; font-weight: 500; color: var(--muted2); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.fields-area { display: flex; flex-direction: column; gap: 10px; }
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-label { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+input[type=text],input[type=email],input[type=tel],input[type=password],input[type=url],textarea,select {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: 'Inter', sans-serif;
+  font-size: 14px; padding: 10px 12px; outline: none;
+  transition: border-color 0.12s; -webkit-appearance: none; appearance: none;
+}
+input::placeholder, textarea::placeholder { color: var(--muted2); font-weight: 300; }
+input:focus, textarea:focus, select:focus { border-color: var(--border-focus); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23b0aca4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+}
+
+.options-bar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid var(--border); }
+.opt-group { display: flex; align-items: center; gap: 6px; }
+.opt-label { font-size: 11px; font-weight: 500; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.pill-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; padding: 3px 9px;
+  border-radius: 100px; cursor: pointer; transition: all 0.12s;
+}
+.pill-btn:hover { border-color: var(--border-focus); color: var(--text); }
+.pill-btn.active { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+.color-dots { display: flex; gap: 5px; }
+.cdot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid transparent; cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
+.cdot:hover { transform: scale(1.2); }
+.cdot.active { border-color: var(--text); }
+.cdot.c0 { background: #1a1916; }
+.cdot.c1 { background: #1a3a5e; }
+.cdot.c2 { background: #1a3a1a; }
+.cdot.c3 { background: #5e1a1a; }
+.cdot.c4 { background: #3a1a5e; }
+
+.actions { display: flex; gap: 8px; margin-top: auto; }
+.btn-dl {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--text); color: var(--bg); border: none; font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500; padding: 12px 20px; border-radius: var(--radius);
+  cursor: pointer; transition: opacity 0.12s;
+}
+.btn-dl:hover:not(:disabled) { opacity: 0.82; }
+.btn-dl:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.btn-copy {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  font-family: 'Inter', sans-serif; font-size: 13px; padding: 12px 16px;
+  border-radius: var(--radius); cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.btn-copy:hover:not(:disabled) { border-color: var(--border-focus); color: var(--text); }
+.btn-copy:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-copy.ok { border-color: var(--green); color: var(--green); }
+
+.panel-right {
+  padding: 40px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+  position: sticky; top: 61px; align-self: start; min-height: calc(100vh - 61px);
+}
+
+.qr-stage { position: relative; width: 100%; max-width: 260px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+
+.empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; transition: opacity 0.2s; }
+.empty-state.gone { opacity: 0; pointer-events: none; }
+.empty-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; width: 84px; height: 84px; opacity: 0.08; }
+.ec { background: var(--text); border-radius: 1px; animation: ec 3s ease-in-out infinite; }
+@keyframes ec { 0%,100%{opacity:0} 50%{opacity:1} }
+.empty-hint { font-size: 12px; color: var(--muted2); font-weight: 300; }
+
+.qr-frame {
+  padding: 16px; background: white; border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 8px 32px rgba(0,0,0,0.05);
+  opacity: 0; transform: scale(0.95) translateY(6px); transition: opacity 0.3s, transform 0.3s;
+}
+.qr-frame.show { opacity: 1; transform: none; }
+
+#qrcode { display: block; line-height: 0; }
+#qrcode canvas, #qrcode img { display: block; border-radius: 2px; }
+
+.qr-status { font-size: 12px; color: var(--muted2); font-weight: 300; text-align: center; min-height: 20px; }
+.qr-status.ok { color: var(--green); }
+.qr-status.err { color: var(--red); }
+
+.qr-preview { max-width: 240px; font-size: 11px; color: var(--muted2); line-height: 1.5; word-break: break-all; text-align: center; max-height: 36px; overflow: hidden; font-weight: 300; }
+
+footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.fn { font-size: 11px; color: var(--muted2); font-weight: 300; }
+
+@media (max-width: 800px) {
+  header { padding: 16px 20px; }
+  main { grid-template-columns: 1fr; }
+  .panel-left { padding: 28px 20px; border-right: none; border-bottom: 1px solid var(--border); }
+  .panel-right { padding: 28px 20px; position: static; min-height: unset; }
+  footer { padding: 16px 20px; flex-direction: column; gap: 4px; }
+}
+@media (max-width: 480px) {
+  .field-row { grid-template-columns: 1fr; }
+  .options-bar { gap: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <a href="/" class="logo">QR<span>.fast</span></a>
+  <span class="tagline">Free · Instant · No ads</span>
+</header>
+
+<main>
+<div class="panel-left">
+
+  <div>
+    <div class="section-label" style="margin-bottom:10px">Type</div>
+    <div class="type-grid" id="type-grid">
+      <button class="type-btn active" data-type="url">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="type-btn-label">URL</span>
+      </button>
+      <button class="type-btn" data-type="text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10"/></svg>
+        <span class="type-btn-label">Text</span>
+      </button>
+      <button class="type-btn" data-type="wifi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+        <span class="type-btn-label">Wi-Fi</span>
+      </button>
+      <button class="type-btn" data-type="vcard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0c-2 0-4 1-4 3"/><path d="M14 10h4M14 14h4"/></svg>
+        <span class="type-btn-label">vCard</span>
+      </button>
+      <button class="type-btn" data-type="email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span class="type-btn-label">Email</span>
+      </button>
+      <button class="type-btn" data-type="sms">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="type-btn-label">SMS</span>
+      </button>
+      <button class="type-btn" data-type="whatsapp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="type-btn-label">WhatsApp</span>
+      </button>
+      <button class="type-btn" data-type="phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span class="type-btn-label">Phone</span>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label" style="margin-bottom:10px">Content</div>
+    <div class="fields-area" id="fields-area"></div>
+  </div>
+
+  <div>
+    <div class="section-label" style="margin-bottom:12px">Options</div>
+    <div class="options-bar">
+      <div class="opt-group">
+        <span class="opt-label">Size</span>
+        <button class="pill-btn" data-size="256">S</button>
+        <button class="pill-btn active" data-size="320">M</button>
+        <button class="pill-btn" data-size="512">L</button>
+        <button class="pill-btn" data-size="1024">XL</button>
+      </div>
+      <div class="opt-group">
+        <span class="opt-label">ECL</span>
+        <button class="pill-btn ecl active" data-ecl="L">L</button>
+        <button class="pill-btn ecl" data-ecl="M">M</button>
+        <button class="pill-btn ecl" data-ecl="Q">Q</button>
+        <button class="pill-btn ecl" data-ecl="H">H</button>
+      </div>
+      <div class="opt-group">
+        <span class="opt-label">Color</span>
+        <div class="color-dots">
+          <div class="cdot c0 active" data-theme="0"></div>
+          <div class="cdot c1" data-theme="1"></div>
+          <div class="cdot c2" data-theme="2"></div>
+          <div class="cdot c3" data-theme="3"></div>
+          <div class="cdot c4" data-theme="4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-dl" id="btn-dl" disabled>
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3.5 6l3.5 3.5L10.5 6M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Download PNG
+    </button>
+    <button class="btn-copy" id="btn-copy" disabled>Copy</button>
+  </div>
+</div>
+
+<div class="panel-right">
+  <div class="qr-stage">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-grid" id="empty-grid"></div>
+      <span class="empty-hint">Fill in the fields</span>
+    </div>
+    <div class="qr-frame" id="qr-frame">
+      <div id="qrcode"></div>
+    </div>
+  </div>
+  <div class="qr-status" id="qr-status"></div>
+  <div class="qr-preview" id="qr-preview"></div>
+</div>
+</main>
+
+<footer>
+  <span class="fn">100% client-side — nothing leaves your browser</span>
+  <span class="fn">qr.fast · free forever</span>
+</footer>
+</div>
+
+<script>
+const TYPES = {
+  url: {
+    fields: [{ id:'url', label:'URL', type:'url', placeholder:'https://example.com', wide:true }],
+    build: f => f.url || '',
+  },
+  text: {
+    fields: [{ id:'text', label:'Text or message', type:'textarea', placeholder:'Any text, note, address…', wide:true }],
+    build: f => f.text || '',
+  },
+  wifi: {
+    fields: [
+      { id:'ssid',     label:'Network name (SSID)', type:'text',     placeholder:'MyNetwork', wide:true },
+      { id:'password', label:'Password',             type:'password', placeholder:'••••••••' },
+      { id:'security', label:'Security',             type:'select',   options:['WPA','WEP','nopass'] },
+      { id:'hidden',   label:'Hidden network',       type:'select',   options:['false','true'] },
+    ],
+    build: f => {
+      if (!f.ssid) return '';
+      const e = s => (s||'').replace(/([;,:"\\])/g,'\\$1');
+      return `WIFI:T:${f.security||'WPA'};S:${e(f.ssid)};P:${e(f.password)};H:${f.hidden==='true'?'true':'false'};;`;
+    },
+  },
+  vcard: {
+    fields: [
+      { id:'fn',    label:'First name', type:'text',  placeholder:'Jane' },
+      { id:'ln',    label:'Last name',  type:'text',  placeholder:'Doe' },
+      { id:'phone', label:'Phone',      type:'tel',   placeholder:'+1 555 000 0000' },
+      { id:'email', label:'Email',      type:'email', placeholder:'jane@example.com' },
+      { id:'org',   label:'Company',    type:'text',  placeholder:'Acme Inc.' },
+      { id:'title', label:'Job title',  type:'text',  placeholder:'Designer' },
+      { id:'url',   label:'Website',    type:'url',   placeholder:'https://', wide:true },
+    ],
+    build: f => {
+      const name = `${f.fn||''} ${f.ln||''}`.trim();
+      if (!name) return '';
+      return ['BEGIN:VCARD','VERSION:3.0',`N:${f.ln||''};${f.fn||''}`,`FN:${name}`,
+        f.phone?`TEL:${f.phone}`:'', f.email?`EMAIL:${f.email}`:'',
+        f.org?`ORG:${f.org}`:'', f.title?`TITLE:${f.title}`:'',
+        f.url?`URL:${f.url}`:'','END:VCARD'].filter(Boolean).join('\n');
+    },
+  },
+  email: {
+    fields: [
+      { id:'to',      label:'To',      type:'email',    placeholder:'recipient@example.com', wide:true },
+      { id:'subject', label:'Subject', type:'text',     placeholder:'Hey!', wide:true },
+      { id:'body',    label:'Message', type:'textarea', placeholder:'Body…', wide:true },
+    ],
+    build: f => {
+      if (!f.to) return '';
+      const p = [];
+      if (f.subject) p.push('subject='+encodeURIComponent(f.subject));
+      if (f.body)    p.push('body='+encodeURIComponent(f.body));
+      return `mailto:${f.to}${p.length?'?'+p.join('&'):''}`;
+    },
+  },
+  sms: {
+    fields: [
+      { id:'phone', label:'Phone number', type:'tel',      placeholder:'+1 555 000 0000', wide:true },
+      { id:'msg',   label:'Message',      type:'textarea', placeholder:'Hi!', wide:true },
+    ],
+    build: f => f.phone ? `smsto:${f.phone.replace(/\s/g,'')}${f.msg?':'+f.msg:''}` : '',
+  },
+  whatsapp: {
+    fields: [
+      { id:'phone', label:'Phone (with country code)', type:'tel',      placeholder:'+49 123 456 7890', wide:true },
+      { id:'msg',   label:'Pre-filled message',        type:'textarea', placeholder:'Hey!', wide:true },
+    ],
+    build: f => {
+      if (!f.phone) return '';
+      return `https://wa.me/${f.phone.replace(/[^0-9]/g,'')}${f.msg?'?text='+encodeURIComponent(f.msg):''}`;
+    },
+  },
+  phone: {
+    fields: [{ id:'phone', label:'Phone number', type:'tel', placeholder:'+1 555 000 0000', wide:true }],
+    build: f => f.phone ? `tel:${f.phone.replace(/\s/g,'')}` : '',
+  },
+};
+
+const THEMES = [
+  {bg:'#ffffff', fg:'#1a1916'},
+  {bg:'#f0f4fa', fg:'#0d2145'},
+  {bg:'#f0faf2', fg:'#0d2d14'},
+  {bg:'#faf0f0', fg:'#2d0d0d'},
+  {bg:'#f4f0fa', fg:'#1a0d3a'},
+];
+
+const ECL = { L:QRCode.CorrectLevel.L, M:QRCode.CorrectLevel.M, Q:QRCode.CorrectLevel.Q, H:QRCode.CorrectLevel.H };
+let S = { type:'url', size:320, ecl:ECL.L, theme:0, values:{} };
+
+const eg = document.getElementById('empty-grid');
+for (let i=0;i<49;i++){
+  const c=document.createElement('div'); c.className='ec';
+  c.style.animationDelay=(Math.random()*2.5).toFixed(2)+'s';
+  c.style.animationDuration=(2+Math.random()*2).toFixed(2)+'s';
+  c.style.opacity=0; eg.appendChild(c);
+}
+
+function renderFields(type){
+  const area=document.getElementById('fields-area');
+  area.innerHTML=''; S.values={};
+  const fields=TYPES[type].fields;
+  let i=0;
+  while(i<fields.length){
+    const f=fields[i], next=fields[i+1];
+    if(f.wide||f.type==='textarea'||!next||next.wide||next.type==='textarea'){
+      area.appendChild(mkGroup(f)); i++;
+    } else {
+      const row=document.createElement('div'); row.className='field-row';
+      row.appendChild(mkGroup(f)); row.appendChild(mkGroup(next));
+      area.appendChild(row); i+=2;
+    }
+  }
+}
+
+function mkGroup(f){
+  const g=document.createElement('div'); g.className='field-group';
+  const l=document.createElement('label'); l.className='field-label';
+  l.textContent=f.label; l.htmlFor='f_'+f.id; g.appendChild(l);
+  let el;
+  if(f.type==='textarea'){ el=document.createElement('textarea'); el.rows=3; }
+  else if(f.type==='select'){
+    el=document.createElement('select');
+    (f.options||[]).forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; el.appendChild(opt); });
+  } else { el=document.createElement('input'); el.type=f.type; }
+  el.id='f_'+f.id; el.placeholder=f.placeholder||''; el.dataset.fid=f.id;
+  el.addEventListener('input',onInput); el.addEventListener('change',onInput);
+  g.appendChild(el); return g;
+}
+
+let deb;
+function onInput(e){
+  S.values[e.target.dataset.fid]=e.target.value;
+  clearTimeout(deb); deb=setTimeout(gen,100);
+}
+
+function gen(){
+  const text=TYPES[S.type].build(S.values);
+  const frame=document.getElementById('qr-frame');
+  const es=document.getElementById('empty-state');
+  const status=document.getElementById('qr-status');
+  const prev=document.getElementById('qr-preview');
+  const dlBtn=document.getElementById('btn-dl');
+  const cpBtn=document.getElementById('btn-copy');
+
+  if(!text){
+    frame.classList.remove('show'); es.classList.remove('gone');
+    status.textContent=''; status.className='qr-status';
+    prev.textContent=''; dlBtn.disabled=true; cpBtn.disabled=true; return;
+  }
+  es.classList.add('gone');
+  try {
+    const c=document.getElementById('qrcode'); c.innerHTML='';
+    const t=THEMES[S.theme];
+    new QRCode(c,{ text, width:S.size, height:S.size, colorDark:t.fg, colorLight:t.bg, correctLevel:S.ecl });
+    requestAnimationFrame(()=>{
+      frame.classList.add('show');
+      status.textContent=`Ready · ${text.length} chars`; status.className='qr-status ok';
+      prev.textContent=text.length>80?text.slice(0,80)+'…':text;
+      dlBtn.disabled=false; cpBtn.disabled=false;
+    });
+  } catch(e){
+    status.textContent='Input too long for this ECL level'; status.className='qr-status err';
+    prev.textContent=''; dlBtn.disabled=true; cpBtn.disabled=true;
+  }
+}
+
+document.getElementById('type-grid').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-type]'); if(!btn) return;
+  const t=btn.dataset.type; if(t===S.type) return;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); S.type=t; S.values={}; renderFields(t); gen();
+});
+
+document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-size]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); S.size=parseInt(b.dataset.size); gen();
+}));
+
+document.querySelectorAll('[data-ecl]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-ecl]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); S.ecl=ECL[b.dataset.ecl]; gen();
+}));
+
+document.querySelectorAll('[data-theme]').forEach(d=>d.addEventListener('click',()=>{
+  document.querySelectorAll('[data-theme]').forEach(x=>x.classList.remove('active'));
+  d.classList.add('active'); S.theme=parseInt(d.dataset.theme); gen();
+}));
+
+document.getElementById('btn-dl').addEventListener('click',()=>{
+  const cv=document.querySelector('#qrcode canvas'); if(!cv) return;
+  const a=document.createElement('a');
+  const txt=TYPES[S.type].build(S.values);
+  a.download=`qr-${S.type}-${txt.replace(/[^a-z0-9]/gi,'-').slice(0,28)||'code'}.png`;
+  a.href=cv.toDataURL('image/png'); a.click();
+});
+
+document.getElementById('btn-copy').addEventListener('click',()=>{
+  const cv=document.querySelector('#qrcode canvas'); if(!cv) return;
+  const btn=document.getElementById('btn-copy');
+  cv.toBlob(async blob=>{
+    try {
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+      btn.textContent='Copied'; btn.classList.add('ok');
+      setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('ok'); },2000);
+    } catch { btn.textContent='N/A'; setTimeout(()=>btn.textContent='Copy',2000); }
+  });
+});
+
+document.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='s'){ e.preventDefault(); document.getElementById('btn-dl').click(); }});
+
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  const url=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain');
+  if(!url) return;
+  document.querySelector('[data-type="url"]').click();
+  setTimeout(()=>{ const inp=document.getElementById('f_url'); if(inp){ inp.value=url; inp.dispatchEvent(new Event('input')); }},60);
+});
+
+renderFields('url');
+</script>
+</body>
+</html>
