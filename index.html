@@ -169,11 +169,12 @@ select {
   border: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 8px 32px rgba(0,0,0,0.05);
   opacity: 0; transform: scale(0.95) translateY(6px); transition: opacity 0.3s, transform 0.3s;
+  max-width: 100%; box-sizing: border-box;
 }
 .qr-frame.show { opacity: 1; transform: none; }
 
 #qrcode { display: block; line-height: 0; }
-#qrcode canvas, #qrcode img { display: block; border-radius: 2px; }
+#qrcode canvas, #qrcode img { display: block; border-radius: 2px; max-width: 100%; height: auto; }
 
 .qr-status { font-size: 12px; color: var(--muted2); font-weight: 300; text-align: center; min-height: 20px; }
 .qr-status.ok { color: var(--green); }
@@ -192,6 +193,9 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
   .panel-left { padding: 28px 20px; border-right: none; border-bottom: 1px solid var(--border); }
   .panel-right { padding: 28px 20px; position: static; min-height: unset; }
   footer { padding: 16px 20px; flex-direction: column; gap: 4px; }
+  .qr-stage { max-width: 100%; aspect-ratio: unset; }
+  input[type=text], input[type=email], input[type=tel],
+  input[type=password], input[type=url], textarea, select { font-size: 16px; }
 }
 @media (max-width: 480px) {
   .field-row { grid-template-columns: 1fr; }
@@ -199,7 +203,8 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
   .type-btn { padding: 12px 8px 11px; gap: 7px; }
   .type-btn svg { width: 20px; height: 20px; }
   .type-btn-label { font-size: 11px; }
-  .options-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .options-bar { flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; }
+  .opt-group { width: 100%; justify-content: space-between; }
   .pill-btn { font-size: 12px; padding: 6px 14px; }
   .cdot { width: 22px; height: 22px; }
   .color-dots { gap: 8px; }
