@@ -177,6 +177,8 @@ select {
 
 footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .fn { font-size: 11px; color: var(--muted2); font-weight: 300; }
+.fn-link { color: var(--muted2); text-decoration: underline; text-underline-offset: 2px; }
+.fn-link:hover { color: var(--text); }
 
 @media (max-width: 800px) {
   header { padding: 16px 20px; }
@@ -301,7 +303,7 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
 </main>
 
 <footer>
-  <span class="fn">100% client-side — nothing leaves your browser</span>
+  <span class="fn">100% client-side — nothing leaves your browser · <a href="https://github.com/aleshkovskiy/0qr.app" target="_blank" rel="noopener" class="fn-link">open source</a></span>
   <span class="fn">0qr.app · free forever</span>
 </footer>
 </div>
