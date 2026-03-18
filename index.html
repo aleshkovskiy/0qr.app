@@ -458,7 +458,6 @@ function onInput(e){
 }
 
 function gen(){
-  if(typeof QRCode==='undefined') return;
   const text=TYPES[S.type].build(S.values);
   const frame=document.getElementById('qr-frame');
   const es=document.getElementById('empty-state');
