@@ -12,9 +12,13 @@
 <meta property="og:description" content="Free, instant QR codes. No ads, no sign-up, no tracking. 100% in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://0qr.app/">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://0qr.app/0qrOG.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="0qr.app — Free QR Code Generator, Forever">
 <meta name="twitter:description" content="Free, instant QR codes. No ads, no sign-up, no tracking.">
+<meta name="twitter:image" content="https://0qr.app/0qrOG.webp">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -189,7 +193,15 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
 }
 @media (max-width: 480px) {
   .field-row { grid-template-columns: 1fr; }
-  .options-bar { gap: 14px; }
+  .type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .type-btn { padding: 12px 8px 11px; gap: 7px; }
+  .type-btn svg { width: 20px; height: 20px; }
+  .type-btn-label { font-size: 11px; }
+  .options-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .pill-btn { font-size: 12px; padding: 6px 14px; }
+  .cdot { width: 22px; height: 22px; }
+  .color-dots { gap: 8px; }
+  .actions button { flex: 1; }
 }
 </style>
 </head>
