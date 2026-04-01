@@ -220,7 +220,7 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
   .pill-btn { font-size: 12px; padding: 6px 14px; }
   .cdot { width: 22px; height: 22px; }
   .color-dots { gap: 8px; }
-  .overlay-text-input { width: 100%; }
+  .overlay-text-input { flex: 1; min-width: 0; }
   .actions button { flex: 1; }
 }
 </style>
@@ -308,18 +308,20 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
         </div>
       </div>
     </div>
-    <div class="opt-group">
-      <span class="opt-label">Logo</span>
-      <input type="file" id="logo-input" accept="image/*" hidden>
-      <button class="pill-btn" id="logo-btn">Upload</button>
-      <div class="logo-preview" id="logo-preview" style="display:none">
-        <img id="logo-thumb" width="22" height="22">
-        <button class="logo-remove" id="logo-remove">&times;</button>
+    <div class="options-bar" style="margin-top:12px">
+      <div class="opt-group">
+        <span class="opt-label">Logo</span>
+        <input type="file" id="logo-input" accept="image/*" hidden>
+        <button class="pill-btn" id="logo-btn">Upload</button>
+        <div class="logo-preview" id="logo-preview" style="display:none">
+          <img id="logo-thumb" width="22" height="22">
+          <button class="logo-remove" id="logo-remove">&times;</button>
+        </div>
       </div>
-    </div>
-    <div class="opt-group">
-      <span class="opt-label">Label</span>
-      <input type="text" class="overlay-text-input" id="overlay-text" placeholder="Your text" maxlength="30">
+      <div class="opt-group">
+        <span class="opt-label">Label</span>
+        <input type="text" class="overlay-text-input" id="overlay-text" placeholder="Your text" maxlength="30">
+      </div>
     </div>
   </div>
 
