@@ -122,6 +122,18 @@ select {
 
 .color-dots { display: flex; gap: 5px; }
 .cdot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid transparent; cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
+
+.logo-preview { display: flex; align-items: center; gap: 4px; }
+.logo-preview img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; border: 1px solid var(--border); }
+.logo-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 2px; line-height: 1; }
+.logo-remove:hover { color: var(--red); }
+
+.overlay-text-input {
+  width: 120px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; font-family: 'Inter', sans-serif; font-size: 11px;
+  padding: 4px 10px; outline: none; color: var(--text); transition: border-color 0.12s;
+}
+.overlay-text-input:focus { border-color: var(--border-focus); }
 .cdot:hover { transform: scale(1.2); }
 .cdot.active { border-color: var(--text); }
 .cdot.c0 { background: #1a1916; }
@@ -208,6 +220,7 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
   .pill-btn { font-size: 12px; padding: 6px 14px; }
   .cdot { width: 22px; height: 22px; }
   .color-dots { gap: 8px; }
+  .overlay-text-input { width: 100%; }
   .actions button { flex: 1; }
 }
 </style>
@@ -294,6 +307,19 @@ footer { padding: 16px 40px; border-top: 1px solid var(--border); display: flex;
           <div class="cdot c4" data-theme="4"></div>
         </div>
       </div>
+    </div>
+    <div class="opt-group">
+      <span class="opt-label">Logo</span>
+      <input type="file" id="logo-input" accept="image/*" hidden>
+      <button class="pill-btn" id="logo-btn">Upload</button>
+      <div class="logo-preview" id="logo-preview" style="display:none">
+        <img id="logo-thumb" width="22" height="22">
+        <button class="logo-remove" id="logo-remove">&times;</button>
+      </div>
+    </div>
+    <div class="opt-group">
+      <span class="opt-label">Label</span>
+      <input type="text" class="overlay-text-input" id="overlay-text" placeholder="Your text" maxlength="30">
     </div>
   </div>
 
@@ -415,7 +441,7 @@ const THEMES = [
 ];
 
 const ECL = { L:QRCode.CorrectLevel.L, M:QRCode.CorrectLevel.M, Q:QRCode.CorrectLevel.Q, H:QRCode.CorrectLevel.H };
-let S = { type:'url', size:320, ecl:ECL.L, theme:0, values:{} };
+let S = { type:'url', size:320, ecl:ECL.L, theme:0, values:{}, logo:null, overlayText:'' };
 
 const eg = document.getElementById('empty-grid');
 for (let i=0;i<49;i++){
@@ -481,10 +507,37 @@ function gen(){
   try {
     const c=document.getElementById('qrcode'); c.innerHTML='';
     const t=THEMES[S.theme];
-    new QRCode(c,{ text, width:S.size, height:S.size, colorDark:t.fg, colorLight:t.bg, correctLevel:S.ecl });
+    const effectiveEcl=(S.logo||S.overlayText)?ECL.H:S.ecl;
+    new QRCode(c,{ text, width:S.size, height:S.size, colorDark:t.fg, colorLight:t.bg, correctLevel:effectiveEcl });
     requestAnimationFrame(()=>{
+      const cv=document.querySelector('#qrcode canvas');
+      if(cv&&(S.logo||S.overlayText)){
+        const ctx=cv.getContext('2d');
+        if(S.logo){
+          const logoSize=Math.round(S.size*0.2);
+          const x=(cv.width-logoSize)/2, y=(cv.height-logoSize)/2;
+          const pad=Math.round(logoSize*0.15);
+          ctx.fillStyle=t.bg;
+          ctx.beginPath();
+          ctx.roundRect(x-pad,y-pad,logoSize+pad*2,logoSize+pad*2,pad*0.5);
+          ctx.fill();
+          ctx.drawImage(S.logo,x,y,logoSize,logoSize);
+        }
+        if(S.overlayText){
+          const fontSize=Math.max(12,Math.round(S.size*0.06));
+          ctx.font=`500 ${fontSize}px Inter,sans-serif`;
+          ctx.textAlign='center'; ctx.textBaseline='bottom';
+          const tw=ctx.measureText(S.overlayText).width;
+          const tx=cv.width/2, ty=cv.height-fontSize*0.4;
+          ctx.fillStyle=t.bg;
+          ctx.fillRect(tx-tw/2-6,ty-fontSize-2,tw+12,fontSize+6);
+          ctx.fillStyle=t.fg;
+          ctx.fillText(S.overlayText,tx,ty);
+        }
+      }
       frame.classList.add('show');
-      status.textContent=`Ready · ${text.length} chars`; status.className='qr-status ok';
+      const eclNote=(S.logo||S.overlayText)?' · ECL→H':'';
+      status.textContent=`Ready · ${text.length} chars${eclNote}`; status.className='qr-status ok';
       prev.textContent=text.length>80?text.slice(0,80)+'…':text;
       dlBtn.disabled=false; cpBtn.disabled=false;
     });
@@ -540,6 +593,33 @@ document.getElementById('btn-copy').addEventListener('click',()=>{
 });
 
 document.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='s'){ e.preventDefault(); document.getElementById('btn-dl').click(); }});
+
+document.getElementById('logo-btn').addEventListener('click',()=>{
+  document.getElementById('logo-input').click();
+});
+document.getElementById('logo-input').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image();
+  img.onload=()=>{
+    S.logo=img;
+    document.getElementById('logo-thumb').src=img.src;
+    document.getElementById('logo-preview').style.display='flex';
+    document.getElementById('logo-btn').style.display='none';
+    gen();
+  };
+  img.src=URL.createObjectURL(file);
+});
+document.getElementById('logo-remove').addEventListener('click',()=>{
+  S.logo=null;
+  document.getElementById('logo-preview').style.display='none';
+  document.getElementById('logo-btn').style.display='';
+  document.getElementById('logo-input').value='';
+  gen();
+});
+document.getElementById('overlay-text').addEventListener('input',e=>{
+  S.overlayText=e.target.value;
+  clearTimeout(deb); deb=setTimeout(gen,100);
+});
 
 document.addEventListener('dragover',e=>e.preventDefault());
 document.addEventListener('drop',e=>{
