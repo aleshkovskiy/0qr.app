@@ -27,13 +27,15 @@ Every QR code generator out there is either:
   - SMS
   - WhatsApp message
   - Phone number
-- **Customizable** — size, color themes, error correction level
-- **Download as PNG** or copy to clipboard
+- **Customizable** — size (up to 1280px), 5 color themes, error correction level (L/M/Q/H), a center logo, and a caption label
+- **Export your way** — download PNG or SVG, copy the image to the clipboard, or share it (native Web Share on mobile)
+- **Keyboard shortcuts** — `⌘↵` download, `⌘C` copy, `⌘⇧S` SVG
+- **Drag to save** — drag the QR straight into Finder or a chat window
 
 ## Tech Stack
 
-- Pure HTML + CSS + JavaScript (no build tools, no framework)
-- [QRCode.js](https://github.com/davidshimjs/qrcodejs) for QR generation
+- Pure HTML + CSS + JavaScript (no build tools, no framework) — the whole app is a single `index.html`
+- [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) for QR generation (canvas + SVG output, full UTF-8 support)
 - Deployed on **Cloudflare Workers** — globally distributed, always fast, always free
 
 ## Self-hosting
